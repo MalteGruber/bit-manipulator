@@ -1,0 +1,359 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<!--Crawler reading list-->
+		<!--150-160 chars..-->
+		<meta name="description" content="Converts infinite Decimal, Hexadecimal and Binary numbers. Calculates 2s complement signed integers and IEEE 754 Floating Point. Does bit field extraction.">		
+        <title>Relatime Converter</title>
+				
+
+        <!--DEPENDENCIES N LINKS-->
+        <link href="bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">		
+        <link href="https://fonts.googleapis.com/css?family=Roboto|Space+Mono|Caveat+Brush" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+        <script src="js/bigInt.js"></script>
+        <link rel="shortcut icon" href="media/icon.png">
+        <link href="customCss.css" rel="stylesheet">
+        <script src="js/inputControllers.js"></script>
+        <script src="js/viewControllers.js"></script>        
+        <script src="js/base64js-min.js"></script>        
+
+        <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+          <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    </head>
+
+
+    <!--CONTENT-->
+
+    <body ng-app="myApp" class="{{ bodyClass}}" ng-cloak>
+<!-- BEGIN WAYBACK TOOLBAR INSERT -->
+<!-- END WAYBACK TOOLBAR INSERT -->
+        <div class="container-fluid">
+            <!--MAIN COULMNS-->			
+            <div class="row">
+
+                <!--SIDE BAR RIGHT (ADS)-->
+
+                <div class="col-md-3 col-md-push-9">
+                    <!--
+                   <div class="alert alert-success">
+                       <strong>Testing</strong>This will be an ad in the final webpage :)
+                   </div>
+   
+                   <div class="alert alert-warning">
+                       <strong>Testing</strong>This will be an ad in the final webpage :)
+                   </div>		
+                    -->
+                </div>								
+
+
+                <!--LEFT SIDE BAR-->		
+                <div class="col-md-3 col-md-pull-3">
+
+                    <div ng-controller="pinnedFieldsController">		
+                        <div ng-repeat="pin in pinsForDisp">
+                            <div class="alert pin-alert">
+                                <span ng-click="removePin(pin.id)" class="glyphicon glyphicon-remove"></span>
+                                <br>
+                                <p>{{pin.name}} ({{pin.typeName}})</p>	
+                                <strong>{{pin.dispVal}}</strong> <br>
+                                <p>offset: {{pin.offset}}, {{pin.smEndian?"Small Endian":"Big Endian"}}</p>	
+
+
+
+                            </div>
+                        </div>
+                    </div>	
+
+
+
+                </div>
+
+                <!--MAIN CONTAINER-->		
+                <div class="col-md-6 col-md-pull-3">
+                    <div class="container-fluid">
+                        <div class="row">     
+                            <a href="/web/20170502010508/http://hexamorph.com/disclaimer.html">Disclaimer</a> 
+
+                            <h1 class="BIIIG text-center">heXamorph</h1>
+                          
+                            <p class="description-text">Converts infinite Decimal, Hexadecimal and Binary numbers. Calculates 2s complement signed integers and IEEE 754 Floating Point.
+							The tool can extract bit fields of any offset and multiple pin these when extracting parameters.  
+                            </p>
+  <p style="color:#a00;" class="text-center">Got ideas for improvements? feedback@hexamorph.com</p> 
+
+                            <!--NOTIFICATION-->
+
+                            <div class="alertoverlay" ng-controller="notificationController"> 
+                                <div class="alert alert-success" ng-show="visibleSuccess" ng-class="{'fade-out': fadeOutGoSuccess}">
+                                    <strong>Success</strong> {{msgSuccess}}
+                                </div>                       
+                            </div>
+
+                            <div class="alertoverlay" ng-controller="notificationController" ng-show="visibleDanger"> 
+                                <div class="alert alert-danger" ng-class="{'fade-out': fadeOutGoDanger}">
+                                    <strong>Whoops! </strong> {{msgAlert}}
+                                </div>                       
+                            </div>           
+
+
+
+
+
+                            <!--NOTIFICATION <div class="col-lg-8 col-centered" >-->
+
+                            <div class="form-group">
+                                <!--    <p>Decimal </p>
+                                        <input type="text" class="form-control" ng-change="myFunc()" ng-model="myValue" />
+                                        <p>Hex </p>
+                                        <input type="text" class="form-control" ng-change="hex()" ng-model="hexInput" />
+                                --> 
+
+
+
+
+
+
+
+
+
+                                <p class="input-title">Decimal</p>
+
+                                <input ng-controller="decInputController" type="text" class="form-control" ng-change="decInputChanged()" ng-model="decInput"/>
+
+                                <p class="input-title">Hexadecimal</p>
+                                <input ng-controller="hexInputController" type="text" class="form-control" ng-change="hexInputChanged()" ng-model="hexInput"/>
+
+                                <p class="input-title">Binary</p>
+                                <input ng-controller="binInputController" type="text" class="form-control" ng-change="binInputChanged()" ng-model="binInput"/>
+
+
+                                <!--  <p>Base64</p>
+                                  <input ng-controller="base64InputController"type="text" class="form-control" ng-change="inputChanged()" ng-model="input" />
+      
+                                  <p>ASCII</p>               
+                                  <input ng-controller="asciiInputController"type="text" class="form-control" ng-change="inputChanged()" ng-model="input" />
+                                -->
+                                <br>
+
+                                <div class="well">
+
+                                    <!--TARGET BITS-->				  
+                                    <h3 class="text-center">Bit Field Extractor</h3>
+                                    <div ng-controller="bitInfoController" class="text-center bitText">
+                                        <p class="bitText">Target Bits</p>
+                                        <p class="bitText"><span class="invisible-padding bitText">{{postPadding}}</span>  {{postBitDisp}}<span class="selectedBits bitText">{{targetBitsDisp}}</span>{{preBitDisp}}<span class="invisible-padding bitText">{{prePadding}}</span></p>
+                                    </div>
+                                    <!--BITS TABLE AND CONTROLS-->	
+
+                                    <!--CONTROLS COULUMN-->	
+
+                                    <div>
+                                        <form class="form-horizontal">
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label">Bit Offset</label>
+                                                <div class="col-sm-8">
+                                                    <input ng-controller="bitOffsetController" class="form-control" id="focusedInput" type="number" ng-change="offsetChange()" ng-model="offsetInput">
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <!--ENDIANNESS-->	
+                                    <div ng-controller="endianSelectController" class="text-center">
+                                        <label class="radio-inline ">
+                                            <input type="radio" ng-model="isLittleEndian" ng-change="endiannessChanged()" value="0">Big Endian
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" ng-model="isLittleEndian" ng-change="endiannessChanged()" value="1">Little Endian
+                                        </label>
+                                    </div>
+
+
+
+
+
+                                    <div class="text-center" ng-controller="pinController">
+
+                                        <div class="btn-group " ng-repeat="x in pinsForDisp">
+
+
+                                            <button ng-click="addPin(x.type)" type="button" class="btn btn-info">
+                                                <span class="glyphicon glyphicon-pushpin"></span>  
+                                                {{x.name}}
+                                            </button>
+
+                                        </div>
+
+
+                                    </div>
+
+                                    <hr>
+                                    <!--BIT TABLE COLUMN-->	
+                                    <p>Byte Mapping</p>
+
+
+
+
+
+
+
+
+                                    <div ng-controller="floatSelecController">
+                                        <!--FLOATING POINT-->	
+                                        <p class="input-title">IEEE 754 Floating Point </p>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control" ng-model="floatInput" ng-change="floatButtonDisable = false"/>		 
+                                            </div>
+                                            <div class="col-md-6">
+                                                <button type="button" class="btn btn-success" ng-disabled="floatButtonDisable" ng-click="commitFloatChange()">Commit Float</button> 
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+
+
+
+                                    <!--INTEGERS-->	
+                                    <div ng-controller="intFieldController">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <p class="input-title">int8</p>
+
+
+                                                <input type="number" class="form-control" ng-change="intInputChanged(1)" ng-model="intInput[1]"/>
+
+                                            </div>
+
+                                            <div class="col-sm-4">
+                                                <p class="input-title">int16</p>
+                                                <input type="number" class="form-control" ng-change="intInputChanged(3)" ng-model="intInput[3]"/>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <p class="input-title">int32</p>
+                                                <input type="number" class="form-control" ng-change="intInputChanged(5)" ng-model="intInput[5]"/>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <p class="input-title">uint8</p>
+                                                <input type="number" class="form-control" ng-change="intInputChanged(0)" ng-model="intInput[0]"/>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <p class="input-title">uint16</p>
+                                                <input type="number" class="form-control" ng-change="intInputChanged(2)" ng-model="intInput[2]"/>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <p class="input-title">uint32</p>
+                                                <input type="number" class="form-control" ng-change="intInputChanged(4)" ng-model="intInput[4]"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+
+                                    <table class="table bitTable " ng-controller="byteInfoTableController">
+                                        <thead>
+                                            <tr>
+                                                <th>Byte 3</th>
+                                                <th>Byte 2</th>
+                                                <th>Byte 1</th>
+                                                <th>Byte 0</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>			
+                                            <tr>
+                                                <td class="tableBits" ng-repeat="x in binStr track by $index ">{{x}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="tableBits" ng-repeat="x in hexStr track by $index">{{x}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="tableBits" ng-repeat="x in decStr track by $index">{{x}}</td>
+                                            </tr>							
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>int8 [0]</td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td>int16 [{{isLittleEndian ? "1" : "0"}}]</td>
+                                                <td>int16 [{{isLittleEndian ? "0" : "1"}}]</td>
+                                            </tr>
+                                            <tr>
+                                                <td>int32 [{{isLittleEndian ? "3" : "0"}}]</td>
+                                                <td>int32 [{{isLittleEndian ? "2" : "1"}}]</td>
+                                                <td>int32 [{{isLittleEndian ? "1" : "2"}}]</td>
+                                                <td>int32 [{{isLittleEndian ? "0" : "3"}}]</td>
+                                            </tr>
+                                            <tr>
+                                                <td>float [{{isLittleEndian ? "3" : "0"}}]</td>
+                                                <td>float [{{isLittleEndian ? "2" : "1"}}]</td>
+                                                <td>float [{{isLittleEndian ? "1" : "2"}}]</td>
+                                                <td>float [{{isLittleEndian ? "0" : "3"}}]</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>                  
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div> 
+        </div>
+        <script>
+            (function(i, s, o, g, r, a, m){i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function(){
+            (i[r].q = i[r].q || []).push(arguments)}, i[r].l = 1 * new Date(); a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+            })(window, document, 'script', 'https://web.archive.org/web/20170502010508/https://www.google-analytics.com/analytics.js', 'ga');
+            ga('create', 'UA-89635331-1', 'auto');
+            ga('send', 'pageview');
+        </script>
+
+
+        <!--END OF CONTENT-->
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="https://web.archive.org/web/20170502010508js_/https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <!-- Include all compiled plugins (below), or include individual files as needed -->
+        <script src="bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    </body>
+</html><!--
+     FILE ARCHIVED ON 01:05:08 May 02, 2017 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 11:28:11 Aug 09, 2019.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+-->
+<!--
+playback timings (ms):
+  RedisCDXSource: 7.12
+  captures_list: 79.306
+  exclusion.robots: 0.33
+  exclusion.robots.policy: 0.314
+  PetaboxLoader3.datanode: 48.63 (4)
+  LoadShardBlock: 52.327 (3)
+  esindex: 0.013
+  PetaboxLoader3.resolve: 779.252
+  load_resource: 811.173
+  CDXLines.iter: 16.029 (3)
+-->
